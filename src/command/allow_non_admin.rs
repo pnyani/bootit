@@ -13,6 +13,10 @@ pub fn allow_non_admin(it_path: Option<PathBuf>) -> miette::Result<()> {
             None => util::find_it()?,
         };
 
+        // set the owner to root
+        use nix::unistd::{Gid, Uid, chown};
+        chown(&it_path, Some(Uid::from_raw(0)), Some(Gid::from_raw(0))).into_diagnostic()?;
+
         let metadata = fs::metadata(&it_path).into_diagnostic()?;
         let mut permissions = metadata.permissions();
         let mode = permissions.mode();
