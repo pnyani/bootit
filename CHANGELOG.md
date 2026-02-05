@@ -9,3 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial feature set.
+
+## [0.1.1] - 2026-02-06
+
+### Fixed
+- Fix `allow-non-admin` flag not making the owner of file root.
