@@ -108,3 +108,27 @@ fn load_config(path: impl AsRef<Path>) -> miette::Result<Config> {
         }
     }
 }
+
+pub fn determine_config_path(path: Option<PathBuf>) -> miette::Result<PathBuf> {
+    let config_path = match path {
+        Some(p) => p,
+        None => default_config_path(),
+    };
+
+    if let Some(parent) = config_path.parent() {
+        fs::create_dir_all(parent).into_diagnostic()?;
+    }
+
+    if !config_path.exists() {
+        let default_config = Config::default();
+        save_config(&config_path, &default_config)?;
+    }
+
+    Ok(config_path)
+}
+
+fn default_config_path() -> PathBuf {
+    // ~/.config/bootit.yaml
+    let home_dir = dirs::home_dir().expect("Could not determine home directory");
+    home_dir.join(".config").join("bootit.yaml")
+}

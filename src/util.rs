@@ -1,4 +1,7 @@
+use std::path::PathBuf;
+
 use miette::miette;
+use which::which;
 
 pub fn check_privileges() -> miette::Result<()> {
     #[cfg(unix)]
@@ -11,4 +14,12 @@ pub fn check_privileges() -> miette::Result<()> {
         }
     }
     Ok(())
+}
+
+pub fn find_it() -> miette::Result<PathBuf> {
+    if let Ok(path) = which("it") {
+        return Ok(path);
+    } else {
+        return Err(miette!("Could not find 'it' in PATH. Please install it."));
+    }
 }

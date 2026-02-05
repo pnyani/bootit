@@ -4,17 +4,14 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "bootit")]
+#[command(version)]
 #[command(about = "Simple in-system boot selection utility", long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
 
-    #[arg(
-        long,
-        help = "Path to configuration file",
-        default_value = "/boot/bootit.yaml"
-    )]
-    pub config_path: PathBuf,
+    #[arg(long, help = "Path to configuration file")]
+    pub config_path: Option<PathBuf>,
 }
 
 #[derive(Subcommand)]
@@ -34,6 +31,11 @@ pub enum Commands {
     Alias {
         #[command(subcommand)]
         action: AliasCommands,
+    },
+    #[command(about = "Allow non-admin users to run it command")]
+    AllowNonAdmin {
+        #[arg(long, help = "Username to allow")]
+        it_path: Option<PathBuf>,
     },
 }
 

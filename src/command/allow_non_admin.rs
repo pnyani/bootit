@@ -1,0 +1,39 @@
+use miette::IntoDiagnostic;
+use std::fs;
+use std::os::unix::fs::PermissionsExt;
+use std::path::PathBuf;
+
+use crate::util;
+
+pub fn allow_non_admin(it_path: Option<PathBuf>) -> miette::Result<()> {
+    #[cfg(target_os = "linux")]
+    {
+        let it_path = match it_path {
+            Some(path) => path,
+            None => util::find_it()?,
+        };
+
+        let metadata = fs::metadata(&it_path).into_diagnostic()?;
+        let mut permissions = metadata.permissions();
+        let mode = permissions.mode();
+
+        // Set the setuid bit and ensure owner has execute permission
+        let new_mode = mode | 0o4755;
+        permissions.set_mode(new_mode);
+        fs::set_permissions(&it_path, permissions).into_diagnostic()?;
+
+        println!(
+            "Set setuid bit on '{}', new mode: {:o}",
+            it_path.display(),
+            new_mode
+        );
+        println!("Non-admin users can now use it command to boot.");
+    }
+
+    #[cfg(not(target_os = "linux"))]
+    {
+        println!("Setting setuid bit is not supported on this operating system.");
+    }
+
+    Ok(())
+}
