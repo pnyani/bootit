@@ -101,15 +101,10 @@ fn load_config_raw(path: impl AsRef<Path>) -> miette::Result<Config> {
 fn load_config(path: impl AsRef<Path>) -> miette::Result<Config> {
     match load_config_raw(&path) {
         Ok(config) => Ok(config),
-        Err(e) => {
-            if let Some(io_err) = e.source().and_then(|s| s.downcast_ref::<std::io::Error>()) {
-                if io_err.kind() == std::io::ErrorKind::NotFound {
-                    let default_config = Config::default();
-                    save_config(&path, &default_config)?;
-                    return Ok(default_config);
-                }
-            }
-            Err(e)
+        Err(_) => {
+            let default_config = Config::default();
+            save_config(&path, &default_config)?;
+            return Ok(default_config);
         }
     }
 }
